@@ -4,32 +4,29 @@ const {
     getUsers,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    userLoginIn
 } = require('../controllers/userController');
-const passport = require('passport');
-const bcrypt = require('bcryptjs');
-
+const {authenticateJWT} = require('../config/jwt');  // Custom JWT Middleware
+const validateUser = require('../middlewares/validateUser');
 const router = express.Router();
 
-//Route to create User
+// Route to create User with validation
+router.post('/', validateUser, creatUser);
 
-router.post('/', creatUser);
+// Route to get all Users (requires authentication)
+router.get('/', authenticateJWT, getUsers);
 
-//Router to getUsers
+// Route to get a specific User by ID (requires authentication)
+router.get('/:id', authenticateJWT, getUserById);
 
-router.get('/', getUsers);
+// Route to update User information (requires authentication)
+router.put('/:id', authenticateJWT, updateUser);
 
-//Router to get specific user
+// Route to delete User information (requires authentication)
+router.delete('/:id', authenticateJWT, deleteUser);
 
-router.get('/:id', getUserById);
-
-//Router to update user information
-
-router.put('/:id', passport.authenticate('jwt',{ session:false }),updateUser);
-
-
-//Router to delete the User information
-
-router.delete('/:id', passport.authenticate('jwt',{ session:false }),deleteUser);
+// Route to login 
+router.post('/login', userLoginIn);
 
 module.exports = router;
