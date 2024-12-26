@@ -4,6 +4,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const passport = require('passport');
 const authRoutes = require('./routes/authRoutes');
+const youtubeRoutes = require('./routes/youtubeRoutes');
 
 require('dotenv').config(); 
 require('./config/passport');
@@ -18,6 +19,7 @@ app.use(express.json()); // To parse JSON req
 app.use(passport.initialize());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api',youtubeRoutes );
 
 //Connect to MongoDB
 

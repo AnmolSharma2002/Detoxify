@@ -56,24 +56,39 @@ const getUserById = async (req, res) => {
 // Update User
 const updateUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, currentPassword } = req.body;
 
-        // Hash new Password if provided
-        let hashedPassword;
-        if (password) {
-            hashedPassword = await bcrypt.hash(password, 10);
-        }
-
-        // Update user Fields
-        const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            { name, email, password: hashedPassword || undefined },
-            { new: true }
-        );
-
-        if (!updatedUser) {
+        // Find the user by ID
+        const user = await User.findById(req.params.id);
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        // If password is being updated, verify current password
+        if (password) {
+            if (!currentPassword) {
+                return res.status(400).json({ message: 'Current password is required to update the password' });
+            }
+
+            const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: 'Current password is incorrect' });
+            }
+        }
+
+        // Hash new password if provided
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+
+        // Update user fields
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { 
+                name, 
+                email, 
+                ...(hashedPassword && { password: hashedPassword }) 
+            },
+            { new: true }
+        );
 
         res.status(200).json({ message: 'User updated successfully', user: updatedUser });
     } catch (error) {
@@ -81,6 +96,7 @@ const updateUser = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 // Delete User
 const deleteUser = async (req, res) => {
@@ -100,7 +116,6 @@ const deleteUser = async (req, res) => {
 const userLoginIn = async (req, res) => {
     try {
         const { email, password } = req.body;
-
         // Find User by Email
         const user = await User.findOne({ email });
         if (!user) {
@@ -112,7 +127,7 @@ const userLoginIn = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "INVALID CREDENTIALS" });
         }
-
+        console.log(user);
         // If matched, generate JWT token
         const token = generateToken(user);
 

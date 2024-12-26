@@ -14,19 +14,22 @@ const router = express.Router();
 // Route to create User with validation
 router.post('/', validateUser, creatUser);
 
+router.post('/login', userLoginIn);
 // Route to get all Users (requires authentication)
-router.get('/', authenticateJWT, getUsers);
+router.get('/', 
+    authenticateJWT,
+     getUsers);
 
 // Route to get a specific User by ID (requires authentication)
-router.get('/:id', authenticateJWT, getUserById);
+router.get('/:id',getUserById, authenticateJWT );
 
 // Route to update User information (requires authentication)
-router.put('/:id', authenticateJWT, updateUser);
+router.put('/:id', updateUser, authenticateJWT);
 
 // Route to delete User information (requires authentication)
 router.delete('/:id', authenticateJWT, deleteUser);
 
 // Route to login 
-router.post('/login', userLoginIn);
+
 
 module.exports = router;
