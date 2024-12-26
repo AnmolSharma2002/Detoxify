@@ -127,7 +127,6 @@ const userLoginIn = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "INVALID CREDENTIALS" });
         }
-        console.log(user);
         // If matched, generate JWT token
         const token = generateToken(user);
 
