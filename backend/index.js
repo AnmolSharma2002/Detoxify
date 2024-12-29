@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const passport = require('passport');
+const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
 const youtubeRoutes = require('./routes/youtubeRoutes');
 
@@ -16,7 +17,17 @@ const app = express();
 
 app.use(cors());
 app.use(express.json()); // To parse JSON req 
+
+app.use(session(
+    {
+        secret: process.env.SESSION_SECRET,
+        resave:false,
+        saveUninitialized:false,
+        cookie: { secure:false} //Set True in production stage
+    }
+));
 app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api',youtubeRoutes );
